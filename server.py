@@ -1,22 +1,22 @@
 
 
 
-import threading, socket, colorama, helpers
+import threading, socket, colorama, helpers,session
 
 
 def main():
     globals()['close'] = False
-
-    cc = server()
-    cc.run()
+    globals()['CommandServer'] = server()
+    globals()['CommandServer'].run()
 
 
 
 class server():
-
+    #TODO: implement what a "instruction" payload to send to the client is, (maybe json?, dictionarty?)
     def __init__(self, host='localhost', port = 5000, db='memory'):
         self.socket = self._socket(port)
-        self.clients = []
+        self.sessions = []
+        self.current_session = None
         self.db = db
         self.threads = []
         self.commands = {
@@ -61,19 +61,32 @@ class server():
 
     @helpers.make_threaded
     def get_client_connection(self):
-        '''wait for a client to connect on a different thread'''
+        '''wait for a client to connect on a different thread and create a new session'''
         while True:
             self.socket.settimeout(0.1)
             try:
                 connection,ip = self.socket.accept()
                 helpers.show("\nRECEIVED CONNECTION FROM: {}".format(ip),colour="GREEN",end="\n->")
-                self.clients.append((connection,ip))
-                connection.send('g'.encode())
+                new_session = session.Session(connection,len(self.clients))
+                self.sessions.append(new_session)
+                new_session.check_connection()
             except socket.timeout:
                 pass    
             if globals()['close']:
                 helpers.show("STOPING LISTENING SOCKET",colour="RED",style="BRIGHT")
                 break
+    
+    def set_session(self,session):
+        self.current_session = session
+        helpers.show("Current Session is Session {}".format(session.id), end="\n")
+        return
+    
+    #changes session
+    def _sesh(self, ID):
+        #TODO:implement (definetly call set_session)
+
+        return
+    #TODO:implement remove session
 
     def _commands(self):
         '''list the commands'''
@@ -81,7 +94,7 @@ class server():
         for cmd in self.commands.keys():
             out += cmd + " | "
         return out
-    
+
     def _hello(self):
         return "hello!"
               
