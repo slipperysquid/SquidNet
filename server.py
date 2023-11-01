@@ -1,13 +1,10 @@
 
 
 
-import threading, socket, colorama, helpers,session
+import psutil
+import signal
+import threading, socket, colorama, helpers,session, file_host, socketserver,select, subprocess, os
 
-
-def main():
-    globals()['close'] = False
-    globals()['CommandServer'] = server()
-    globals()['CommandServer'].run()
 
 
 
@@ -17,7 +14,10 @@ class server():
         self.socket = self._socket(port)
         self.sessions = []
         self.current_session = None
+        self.host = host
+        self.port = port
         self.db = db
+        self.app = None
         self.threads = []
         self.commands = {
 
@@ -57,12 +57,12 @@ class server():
         else:
             raise Exception("Unknown command: \"{}\"".format(command))
         return out
-
+        
 
     @helpers.make_threaded
     def get_client_connection(self):
         '''wait for a client to connect on a different thread and create a new session'''
-        while True:
+        while True and not globals()['close']:
             self.socket.settimeout(0.1)
             try:
                 connection,ip = self.socket.accept()
@@ -71,10 +71,11 @@ class server():
                 self.sessions.append(new_session)
                 new_session.check_connection()
             except socket.timeout:
+               
                 pass    
-            if globals()['close']:
-                helpers.show("STOPING LISTENING SOCKET",colour="RED",style="BRIGHT")
-                break
+            
+        helpers.show("STOPING LISTENING SOCKET",colour="RED",style="BRIGHT",end="\n")
+        
     
     def set_session(self,session):
         self.current_session = session
@@ -84,7 +85,6 @@ class server():
     #changes session
     def _sesh(self, ID):
         #TODO:implement (definetly call set_session)
-
         return
     #TODO:implement remove session
 
@@ -113,8 +113,10 @@ class server():
 
 
     def run(self):
+        #listen for incoming connections
+        print("asd")
         self.threads.append(self.get_client_connection())
-        while True:
+        while True and not globals()['close']:
             cmd_string = input(getattr(colorama.Fore, 'GREEN') + "->" + colorama.Style.RESET_ALL)
             cmd, x, action = cmd_string.partition(' ')
             if cmd in self.commands:
@@ -133,12 +135,22 @@ class server():
             else:
                 helpers.show("INVALID COMMAND:",colour='RED', style='BRIGHT',end='')
                 helpers.show("use 'commands' for list of commands", colour="BLUE")
+        for t in self.threads:
+            t.join()
+          
+if __name__ == "__main__":       
 
-            if (globals()['close']):
-                helpers.show("CLOSING SERVER",colour='RED',style='BRIGHT', end='\n')
-                break
-                
+    #host the module files
+    #TODO: make compatible for linux file path too
+    globals()['module_host'] = subprocess.Popen('python -m http.server 5001',stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=os.getcwd() + '\\modules',shell=True)
 
-    
+    globals()['close'] = False
+    globals()['CommandServer'] = server()
+    globals()['CommandServer'].run()
 
-main()
+
+    #close the module host    
+    process = psutil.Process(globals()['module_host'].pid)
+    for proc in process.children(recursive=True):
+        proc.kill()
+    process.kill()

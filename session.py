@@ -10,15 +10,15 @@ class Session(threading.Thread):
         self.connection = connection
         self.id = ID
         self.create_time = time.time()
-        self.active = threading.Event()
+        
         self.abort = False
 
     def kill(self):
         "close the session and restart interaction with the command and CONTROL"
         #TODO: dont know if we will have time to implement tcp shell so this might not be needed
         self._active.clear()
-        server.globals()['CommandServer'].current_session = None
-        globals()['CommandServer'].run()
+        globals()['CommandServer'].current_session = None
+        
     
     def check_connection(self):
         '''degubbing function to check connection between sockets'''
@@ -34,7 +34,7 @@ class Session(threading.Thread):
     def receive_response(self):
         #TODO:implement
         return
-    
+    '''
     #Reverse TCP shell
     def run(self):
         while True:
@@ -47,3 +47,4 @@ class Session(threading.Thread):
                     break
 
         self.active.clear()
+        '''
