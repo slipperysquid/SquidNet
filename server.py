@@ -74,7 +74,13 @@ class server():
             try:
                 connection, ip = self.socket.accept()
                 helpers.show("\nRECEIVED CONNECTION REQUEST FROM: {}".format(ip), colour="GREEN", end="\n->")
-                session_id = random.randint(1000, 9999)
+                
+                # Ensure the session ID is unique
+                while True:
+                    session_id = random.randint(1000, 9999)
+                    if not any(s.id == session_id for s in self.sessions):
+                            break
+                
                 new_session = session.Session(connection, session_id)
                 if new_session.check_connection():
                     helpers.show("CONNECTION SUCCESSFUL", colour="GREEN", style="BRIGHT", end="\n->")
@@ -84,25 +90,27 @@ class server():
                 else:
                     helpers.show("CONNECTION FAILED", colour="RED", style="BRIGHT", end="\n->")
             except socket.timeout:
-                pass    
-
-        helpers.show("STOPPING LISTENING SOCKET", colour="RED", style="BRIGHT", end="\n")   
+                pass       
+                
+            helpers.show("STOPPING LISTENING SOCKET", colour="RED", style="BRIGHT", end="\n")   
+            
     def set_session(self, session):
         self.current_session = session
-        helpers.show(f"Current Session is Session {session.id}", end="\n")
         return
 
     def _sesh(self, ID):
         '''Changes the current session to the session with the specified ID.'''
         try:
             ID = int(ID)
-            self.set_session(self.sessions[ID])
-            helpers.show(f"SESSION ID CHANGED TO: {ID}", colour='GREEN', style='BRIGHT', end='')
+            session = next((s for s in self.sessions if s.id == ID), None)
+            if session:
+                self.set_session(session)
+                helpers.show(f"SESSION ID CHANGED TO: {ID}", colour='GREEN', style='BRIGHT', end='')
+            else:
+                helpers.show("SESSION ID NOT FOUND", colour='RED', style='BRIGHT', end='')
         except ValueError:
             helpers.show("INVALID SESSION ID:", colour='RED', style='BRIGHT', end='')
-        return  
-    
-    
+        return   
     #TODO:implement remove session
 
     def _commands(self):
