@@ -3,7 +3,8 @@
 
 import psutil
 import signal
-import threading, socket, colorama, helpers,session, file_host, socketserver,select, subprocess, os
+import threading, socket, colorama, helpers,session, socketserver,select, subprocess, os
+import random
 
 
 
@@ -43,6 +44,12 @@ class server():
                 'method' : self._help,
                 'use' : 'help <command>',
                 'desc' : 'Gives the description and usage of a command.' 
+            },
+            
+            'session' : {
+                'method' : self._sesh,
+                'use' : 'session <session_id>',
+                'desc' : 'Changes the current session to the session with the specified ID.'
             }
         
         }
@@ -65,27 +72,37 @@ class server():
         while True and not globals()['close']:
             self.socket.settimeout(0.1)
             try:
-                connection,ip = self.socket.accept()
-                helpers.show("\nRECEIVED CONNECTION FROM: {}".format(ip),colour="GREEN",end="\n->")
-                new_session = session.Session(connection,len(self.clients))
-                self.sessions.append(new_session)
-                new_session.check_connection()
+                connection, ip = self.socket.accept()
+                helpers.show("\nRECEIVED CONNECTION REQUEST FROM: {}".format(ip), colour="GREEN", end="\n->")
+                session_id = random.randint(1000, 9999)
+                new_session = session.Session(connection, session_id)
+                if new_session.check_connection():
+                    helpers.show("CONNECTION SUCCESSFUL", colour="GREEN", style="BRIGHT", end="\n->")
+                    
+                    self.sessions.append(new_session)
+                    helpers.show("CREATED NEW SESSION WITH ID " + str(session_id), colour="BLUE", style="BRIGHT", end="\n->")
+                else:
+                    helpers.show("CONNECTION FAILED", colour="RED", style="BRIGHT", end="\n->")
             except socket.timeout:
-               
                 pass    
-            
-        helpers.show("STOPING LISTENING SOCKET",colour="RED",style="BRIGHT",end="\n")
-        
-    
-    def set_session(self,session):
+
+        helpers.show("STOPPING LISTENING SOCKET", colour="RED", style="BRIGHT", end="\n")   
+    def set_session(self, session):
         self.current_session = session
-        helpers.show("Current Session is Session {}".format(session.id), end="\n")
+        helpers.show(f"Current Session is Session {session.id}", end="\n")
         return
-    
-    #changes session
+
     def _sesh(self, ID):
-        #TODO:implement (definetly call set_session)
-        return
+        '''Changes the current session to the session with the specified ID.'''
+        try:
+            ID = int(ID)
+            self.set_session(self.sessions[ID])
+            helpers.show(f"SESSION ID CHANGED TO: {ID}", colour='GREEN', style='BRIGHT', end='')
+        except ValueError:
+            helpers.show("INVALID SESSION ID:", colour='RED', style='BRIGHT', end='')
+        return  
+    
+    
     #TODO:implement remove session
 
     def _commands(self):
@@ -99,7 +116,7 @@ class server():
         return "hello!"
               
     def _socket(self,port):
-        '''creates a socket for the sever'''
+        '''creates a socket for the server'''
         sock =  socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.bind(('localhost',port))
@@ -114,7 +131,6 @@ class server():
 
     def run(self):
         #listen for incoming connections
-        print("asd")
         self.threads.append(self.get_client_connection())
         while True and not globals()['close']:
             cmd_string = input(getattr(colorama.Fore, 'GREEN') + "->" + colorama.Style.RESET_ALL)
@@ -142,7 +158,7 @@ if __name__ == "__main__":
 
     #host the module files
     #TODO: make compatible for linux file path too
-    globals()['module_host'] = subprocess.Popen('python -m http.server 5001',stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=os.getcwd() + '\\modules',shell=True)
+    globals()['module_host'] = subprocess.Popen('python -m http.server 5001',stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=os.getcwd() + '/modules',shell=True)
 
     globals()['close'] = False
     globals()['CommandServer'] = server()

@@ -1,4 +1,4 @@
-import threading,time, server
+import threading,time, server, socket, errno
 
 class Session(threading.Thread):
 
@@ -20,11 +20,43 @@ class Session(threading.Thread):
         globals()['CommandServer'].current_session = None
         
     
-    def check_connection(self):
-        '''degubbing function to check connection between sockets'''
-        self.connection.send('g'.encode())
-        return
+    def check_connection(self, timeout=2):
+        """Debugging function to check connection between sockets with a timeout.
 
+            Args:
+                timeout: The maximum time to wait for a response in seconds.
+
+            Returns:
+                True if the connection is successful within the timeout, False otherwise.
+        """
+        
+        self.connection.setblocking(0)
+        
+        start = time.time()
+        
+        try:
+            self.connection.send('g'.encode())
+            while True:
+                try:
+                    response = self.connection.recv(1)
+                    if str(response.decode()) == 'g':
+                        return True
+                    else:
+                        return False
+                except socket.error as e:
+                    if e.errno == errno.EWOULDBLOCK or e.errno == errno.EAGAIN:
+                        #no data received
+                        if time.time() - start >= timeout:
+                            return False
+                        else:
+                            time.sleep(0.1)
+                    else:
+                        raise e
+        except Exception as e:
+            print(f"check_connection: {e}")
+            return False        
+        finally:
+            self.connection.setblocking(1)
     #sends task to victim
     def send_instruction(self):
         #TODO:implement
