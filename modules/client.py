@@ -104,4 +104,5 @@ class client():
 detach_process()            
 c = client('localhost', 5000)
 c.run()
+print("running")
    

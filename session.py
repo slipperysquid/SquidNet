@@ -10,7 +10,7 @@ class Session(threading.Thread):
         self.connection = connection
         self.id = ID
         self.create_time = time.time()
-        
+        self.client_address = connection.getpeername()[0]
         self.abort = False
 
     def kill(self):
