@@ -1,6 +1,6 @@
-# C2 Framework - Command and Control
+# Squidnet - Bot net framework
 
-This project is a basic Python-based Command and Control (C2) framework for educational and ethical testing purposes. It allows you to establish communication with a remote client, send commands, and receive responses.
+This project is a basic Python-based Bot net framework for educational and ethical testing purposes. It allows you to establish communication with a remote victim, send commands, and remotely run modules.
 
 **Disclaimer:** This code is provided for educational and research purposes only. The author is not responsible for any misuse of this software. Use it responsibly and ethically, and only on systems you have explicit permission to test.
 
