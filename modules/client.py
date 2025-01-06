@@ -16,44 +16,71 @@ def detach_process():
     """
     Detaches the current process from its controlling terminal and runs it in the background.
     """
-    try:
-        # Fork the current process
-        pid = os.fork()
+    # Windows-specific detachment
+    if os.name == 'nt':
+        try:
+            # Use subprocess to create a detached process
+            # https://learn.microsoft.com/en-us/windows/win32/procthread/process-creation-flags
+            DETACHED_PROCESS = 0x00000008
+            CREATE_NEW_PROCESS_GROUP = 0x00000200
+            flags = DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP
 
-        if pid > 0:
-            # Exit the parent process
-            sys.exit(0)
-        else:
-            # This is the child process
+            # Ensure the child process uses the same Python interpreter as the parent.
+            python_executable = sys.executable
+            script_path = os.path.abspath(__file__)  # Get the full path of the current script
 
-            # Create a new session ID for the child process
-            os.setsid()
+            process = subprocess.Popen(
+                [python_executable, script_path],
+                creationflags=flags,
+                stdout=subprocess.PIPE,  # Redirect stdout to a pipe
+                stderr=subprocess.PIPE,  # Redirect stderr to a pipe
+                stdin=subprocess.PIPE,   # Redirect stdin to a pipe
+            )
 
-            # Fork again to ensure the child process is not a session leader
+            # The parent process exits immediately, leaving the detached process running.
+            return
+
+        except Exception as e:
+            print(f"Error detaching process: {e}")
+    else:
+        try:
+            # Fork the current process
             pid = os.fork()
 
             if pid > 0:
-                # Exit the first child process
+                # Exit the parent process
                 sys.exit(0)
             else:
-                # This is the second child process (now a daemon)
+                # This is the child process
 
-                # Change the working directory to the root directory
-                os.chdir("/")
+                # Create a new session ID for the child process
+                os.setsid()
 
-                # Close standard file descriptors
-                os.close(0)
-                os.close(1)
-                os.close(2)
+                # Fork again to ensure the child process is not a session leader
+                pid = os.fork()
 
-                # Open /dev/null for standard input, output, and error
-                os.open(os.devnull, os.O_RDWR)
-                os.dup2(0, 1)
-                os.dup2(0, 2)
+                if pid > 0:
+                    # Exit the first child process
+                    sys.exit(0)
+                else:
+                    # This is the second child process (now a daemon)
+
+                    # Change the working directory to the root directory
+                    os.chdir("/")
+
+                    # Close standard file descriptors
+                    os.close(0)
+                    os.close(1)
+                    os.close(2)
+
+                    # Open /dev/null for standard input, output, and error
+                    os.open(os.devnull, os.O_RDWR)
+                    os.dup2(0, 1)
+                    os.dup2(0, 2)
 
 
-    except OSError as e:
-        print(f"Error detaching process: {e}")
+        except OSError as e:
+            print(f"Error detaching process: {e}")
 
 class client():
 
