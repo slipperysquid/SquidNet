@@ -7,9 +7,9 @@ This project is a basic Python-based Bot net framework for educational and ethic
 ## Features
 
 *   **Multi-Session Handling:** Manage multiple client connections simultaneously.
-*   **Reverse Shell:** Spawn a basic reverse TCP shell on the target client (currently under development).
+*   **Reverse Shell:** Spawn a basic reverse TCP shell on the target client.
 *   **Modular Design:** Easily extend the framework with new modules.
-*   **Dynamic Module Loading:** Load modules from a remote server at runtime (security considerations apply).
+*   **Dynamic Module Loading:** Load modules from a remote server at runtime.
 *   **Basic Command Set:** Includes commands for testing connectivity, changing sessions, and more.
 *   **Docker Support:** Run the server in a containerized environment.
 
