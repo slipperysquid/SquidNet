@@ -19,7 +19,7 @@ This project is a basic Python-based Bot net framework for educational and ethic
 
 ### Prerequisites
 
-*   Python 3.x
+*   Python 3.12.X
 *   Docker (optional, but recommended)
 *   pip
 
