@@ -28,8 +28,8 @@ This project is a basic Python-based Bot net framework for educational and ethic
 1.  **Clone the repository:**
 
     ```bash
-    git clone <repository_url>
-    cd <repository_name>
+    git clone https://github.com/slipperysquid/SquidNet.git
+    cd SquidNet
     ```
 
 ### Running with Docker (Recommended)
