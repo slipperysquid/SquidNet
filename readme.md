@@ -79,10 +79,6 @@ Special thanks to the discontinued BYOB project for inspiring me!: https://githu
     *   `shell`: Spawn a reverse shell (currently requires manual interaction on the client-side to complete the connection, check server logs for the client ip address).
     *   `quit`: Exit the server.
 
-2.  **Client Deployment:**
-
-    *   The `loader.py` script downloads and executes `client.py`. You'll need to modify `loader.py` to point to your server's IP address and port where the module server is running (default: `http://<server_ip>:5001/client.py`).
-
 ## Future Enhancements
 
 *   **Complete Reverse Shell Implementation for windows:**  Fully develop the `win_tcp_shell.py` module.
