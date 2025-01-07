@@ -4,6 +4,8 @@ This project is a basic Python-based Bot net framework for educational and ethic
 
 **Disclaimer:** This code is provided for educational and research purposes only. The author is not responsible for any misuse of this software. Use it responsibly and ethically, and only on systems you have explicit permission to test.
 
+Special thanks to the discontinued BYOB project for inspiring me!: https://github.com/malwaredllc/byob/blob/master
+
 ![alt text](squid.png)
 
 ## Features
