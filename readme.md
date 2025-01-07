@@ -32,12 +32,6 @@ This project is a basic Python-based Bot net framework for educational and ethic
     cd <repository_name>
     ```
 
-2.  **Install dependencies:**
-
-    ```bash
-    pip install -r requirements.txt
-    ```
-
 ### Running with Docker (Recommended)
 
 1.  **Build the Docker image:**
@@ -54,24 +48,20 @@ This project is a basic Python-based Bot net framework for educational and ethic
 
 ### Running without Docker
 
-1.  **Start the server:**
+1.  **Install dependencies:**
+
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+2.  **Change config to server's public IP**
+
+3.  **Start the server:**
 
     ```bash
     python3 server.py
     ```
 
-### Running the Loader
-
-1. **Modify the loader**
-  Modify the `loader.py` file so that the url variable points to your servers ip address. For example:
-    ```
-    url = f"http://<server_ip>:5001/client.py"
-    ```
-2.  **Run the loader**
-
-    ```bash
-    python3 loader.py
-    ```
 
 ## Usage
 
@@ -79,6 +69,7 @@ This project is a basic Python-based Bot net framework for educational and ethic
 
     *   `commands`: List all available commands.
     *   `help <command>`: Get help for a specific command.
+    *   `payload <win || linux>`: Create the staging payload to be run on victim computer
     *   `session <session_id>`: Switch to a specific session.
     *   `test-con`: test the connection to a session
     *   `shell`: Spawn a reverse shell (currently requires manual interaction on the client-side to complete the connection, check server logs for the client ip address).
@@ -90,8 +81,7 @@ This project is a basic Python-based Bot net framework for educational and ethic
 
 ## Future Enhancements
 
-*   **Complete Reverse Shell Implementation:**  Fully develop the `tcp_shell.py` module.
-*   **Windows Payloads:** Add support for Windows clients.
+*   **Complete Reverse Shell Implementation for windows:**  Fully develop the `win_tcp_shell.py` module.
 *   **Database Integration:** Store session information, logs, and other data in a database.
 *   **Persistence:** Implement mechanisms for client persistence on the target system.
 *   **Privilege Escalation:** Add modules for privilege escalation.
