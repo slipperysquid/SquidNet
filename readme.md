@@ -96,5 +96,5 @@ Contributions are welcome! Please feel free to submit pull requests or open issu
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE) - see the LICENSE file for details. (You'll need to create a LICENSE file and put the MIT License text in it).
+This project is licensed under the [GNU](LICENSE) - see the LICENSE file for details.
 
