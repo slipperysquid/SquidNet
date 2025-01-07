@@ -14,6 +14,8 @@ This project is a basic Python-based Bot net framework for educational and ethic
 *   **Dynamic Module Loading:** Load modules from a remote server at runtime.
 *   **Basic Command Set:** Includes commands for testing connectivity, changing sessions, and more.
 *   **Docker Support:** Run the server in a containerized environment.
+*   **Encryption for detection avoidance:** Encrypts payloads and Urls in order to avoid detection.
+*   **Dynamic Payload Creation:** Dynamically creates staging payloads for Windows and Linux.
 
 ## Getting Started
 
