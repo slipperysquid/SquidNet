@@ -10,6 +10,9 @@ import importlib.util
 import importlib.machinery
 import importlib.abc
 
+import hashlib
+import hmac
+
 def make_threaded(func):
     
     def wrapper(*args, **kwargs):
@@ -264,9 +267,10 @@ class client():
                 self.connection.sendall(str(e).encode()) 
         
 
-#detach_process()            
-add_server('127.0.0.1',5003)
-c = client('localhost', 5000)
+#detach_process()          
+HOST = "127.0.0.1"
+add_server(HOST,5003)
+c = client(HOST, 5000)
 c.run()
 print("running")
    

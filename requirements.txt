@@ -1,4 +1,4 @@
 psutil
 colorama
 pyfiglet
-pyxhook
+pynput
