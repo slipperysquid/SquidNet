@@ -267,7 +267,7 @@ class client():
                 self.connection.sendall(str(e).encode()) 
         
 
-#detach_process()          
+detach_process()          
 HOST = "127.0.0.1"
 add_server(HOST,5003)
 c = client(HOST, 5000)

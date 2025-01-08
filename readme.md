@@ -39,6 +39,10 @@ Special thanks to the discontinued BYOB project for inspiring me!: https://githu
     cd SquidNet
     ```
 
+### Setup
+
+2.  **Change config to server's public IP**
+
 ### Running with Docker (Recommended)
 
 1.  **Build the Docker image:**
@@ -61,8 +65,6 @@ Special thanks to the discontinued BYOB project for inspiring me!: https://githu
     pip install -r requirements.txt
     ```
 
-2.  **Change config to server's public IP**
-
 3.  **Start the server:**
 
     ```bash
@@ -81,6 +83,8 @@ Special thanks to the discontinued BYOB project for inspiring me!: https://githu
     *   `test-con`: test the connection to a session
     *   `shell`: Spawn a reverse shell (currently requires manual interaction on the client-side to complete the connection, check server logs for the client ip address).
     *   `quit`: Exit the server.
+    *   `modules`: List the python modules in the modules directory
+    *   `keylogger`: Run a keylogger on the current session
 
 ## Future Enhancements
 
