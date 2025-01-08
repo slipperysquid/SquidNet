@@ -18,6 +18,9 @@ Special thanks to the discontinued BYOB project for inspiring me!: https://githu
 *   **Docker Support:** Run the server in a containerized environment.
 *   **Encryption for detection avoidance:** Encrypts payloads and Urls in order to avoid detection.
 *   **Dynamic Payload Creation:** Dynamically creates staging payloads for Windows and Linux.
+*   **Custom Import Hook:** Custom import hook allows importing python modules through http connection.
+*   **Keylogger:** Keylogger for Windows and Linux
+*   **Nothing Written to Disk:** Everything is done in memory to avoid detection
 
 ## Getting Started
 
@@ -35,6 +38,10 @@ Special thanks to the discontinued BYOB project for inspiring me!: https://githu
     git clone https://github.com/slipperysquid/SquidNet.git
     cd SquidNet
     ```
+
+### Setup
+
+2.  **Change config to server's public IP**
 
 ### Running with Docker (Recommended)
 
@@ -58,8 +65,6 @@ Special thanks to the discontinued BYOB project for inspiring me!: https://githu
     pip install -r requirements.txt
     ```
 
-2.  **Change config to server's public IP**
-
 3.  **Start the server:**
 
     ```bash
@@ -78,6 +83,8 @@ Special thanks to the discontinued BYOB project for inspiring me!: https://githu
     *   `test-con`: test the connection to a session
     *   `shell`: Spawn a reverse shell (currently requires manual interaction on the client-side to complete the connection, check server logs for the client ip address).
     *   `quit`: Exit the server.
+    *   `modules`: List the python modules in the modules directory
+    *   `keylogger`: Run a keylogger on the current session
 
 ## Future Enhancements
 
@@ -86,7 +93,6 @@ Special thanks to the discontinued BYOB project for inspiring me!: https://githu
 *   **Persistence:** Implement mechanisms for client persistence on the target system.
 *   **Privilege Escalation:** Add modules for privilege escalation.
 *   **Cross-Compilation:** Compile payloads for different operating systems automatically.
-*   **Authentication and Encryption:** Secure communication between the server and clients.
 *   **Web UI:** Develop a web-based user interface for easier management.
 
 

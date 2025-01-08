@@ -49,4 +49,6 @@ def tcp_shell(HOST="127.0.0.1", PORT=5002):
         print("Connection closed. Exiting.")
 
 if __name__ == "__main__":
+    HOST = "127.0.0.1"
+    PORT = 5002
     tcp_shell()

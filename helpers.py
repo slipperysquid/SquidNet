@@ -1,4 +1,4 @@
-import threading,colorama, io
+import threading,colorama, io, os, re
 
 def make_threaded(func):
     
@@ -64,3 +64,33 @@ def modify_script(original_filepath, new_filepath, custom_url,key):
         print(f"Error: File not found at {original_filepath}")
     except Exception as e:
         print(f"An error occurred: {e}")
+
+
+
+
+def replace_host_line(file_path, new_ip):
+    """
+    In the given file, replace any line of the form:
+        HOST = "something"
+    (with optional leading spaces) with:
+        HOST = "<new_ip>"
+    """
+    # Regex explanation:
+    #  ^(\s*)         - Start of line, capture any leading spaces
+    #  HOST\s*=\s*    - 'HOST' then '=' with optional spaces
+    #  "([^"]*)"      - Double-quoted string containing any characters except "
+    #  \s*$           - Optional trailing spaces, then end of line
+    pattern = re.compile(r'^(\s*)HOST\s*=\s*"[^"]*"\s*$', re.MULTILINE)
+
+    with open(file_path, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    # Replace with the new IP, keeping the same leading indentation
+    replacement = r'\1HOST = "{}"'.format(new_ip)
+    new_content = pattern.sub(replacement, content)
+    # Only overwrite if something changed
+    if new_content != content:
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(new_content)
+        
+

