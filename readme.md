@@ -78,7 +78,7 @@ Special thanks to the discontinued BYOB project for inspiring me!: https://githu
 
     *   `commands`: List all available commands.
     *   `help <command>`: Get help for a specific command.
-    *   `payload <win || linux>`: Create the staging payload to be run on victim computer
+    *   `payload`: Create the staging payload to be run on victim computer
     *   `session <session_id>`: Switch to a specific session.
     *   `test-con`: test the connection to a session
     *   `shell`: Spawn a reverse shell (currently requires manual interaction on the client-side to complete the connection, check server logs for the client ip address).
