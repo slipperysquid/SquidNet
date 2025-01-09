@@ -54,7 +54,7 @@ Special thanks to the discontinued BYOB project for inspiring me!: https://githu
 2.  **Run the server (using host networking for external access):**
 
     ```bash
-    docker run -it --network host squidnet
+    docker run -v ./payload:/app/payload -v ./output:/app/output -it --network host squidnet
     ```
 
 ### Running without Docker
