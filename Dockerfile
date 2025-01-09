@@ -6,7 +6,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     python3-xlib \
     python3-tk \
-    && rm -rf /var/lib/apt/lists/*
+    netcat-traditional \
+    && rm -rf /var/lib/apt/lists/* 
+
+RUN apt install netcat -y
 
 WORKDIR /app
 
@@ -19,6 +22,6 @@ COPY . /app
 RUN pip install -r requirements.txt
 
 # Expose all ports asdasd
-EXPOSE 5000-5002
+EXPOSE 5000-5004
 
 CMD ["python3", "server.py"]

@@ -88,7 +88,6 @@ Special thanks to the discontinued BYOB project for inspiring me!: https://githu
 
 ## Future Enhancements
 
-*   **Complete Reverse Shell Implementation for windows:**  Fully develop the `win_tcp_shell.py` module.
 *   **Database Integration:** Store session information, logs, and other data in a database.
 *   **Persistence:** Implement mechanisms for client persistence on the target system.
 *   **Privilege Escalation:** Add modules for privilege escalation.
