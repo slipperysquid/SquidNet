@@ -81,7 +81,7 @@ Special thanks to the discontinued BYOB project for inspiring me!: https://githu
     *   `payload`: Create the staging payload to be run on victim computer
     *   `session <session_id>`: Switch to a specific session.
     *   `test-con`: test the connection to a session
-    *   `shell`: Spawn a reverse shell (currently requires manual interaction on the client-side to complete the connection, check server logs for the client ip address).
+    *   `shell`: Spawn a reverse shell
     *   `quit`: Exit the server.
     *   `modules`: List the python modules in the modules directory
     *   `keylogger`: Run a keylogger on the current session
