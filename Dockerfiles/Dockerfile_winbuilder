@@ -10,6 +10,8 @@ RUN pacman -Syu --noconfirm
 
 RUN pacman --quiet -S --noconfirm python wine winetricks wine-mono wine-gecko wget \
     xorg-server-xvfb coreutils which lib32-gnutls libwbclient samba
+
+    
 RUN mkdir /builddir /python /test
 RUN useradd -m -G wheel -s /bin/bash builderbob
 RUN chown builderbob:builderbob /builddir
@@ -39,4 +41,4 @@ COPY payload /builddir/
 
 USER root
 ENTRYPOINT ["/bin/bash"]
-#ENTRYPOINT wine python -m nuitka --assume-yes-for-downloads --output-dir=/test --onefile z:/builddir/payload.py 
+#ENTRYPOINT wine python -m nuitka --assume-yes-for-downloads --output-dir=/payload --onefile z:/payload/payload.py 

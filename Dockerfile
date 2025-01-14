@@ -1,44 +1,60 @@
-FROM python:3.12.8-slim-bookworm
+FROM archlinux/archlinux:latest
 
-# Install any needed system libraries
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3-dev \
-    build-essential \
-    python3-xlib \
-    python3-tk \
-    netcat-traditional \
-    ca-certificates \
-    curl \
-    gnupg \
-    lsb-release \
-    && rm -rf /var/lib/apt/lists/* 
 
-# Install Docker's official GPG key and repo
-RUN mkdir -p /etc/apt/keyrings \
-    && curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg \
-    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian bookworm stable" > /etc/apt/sources.list.d/docker.list
+# Install required packages
+RUN pacman -Syu --noconfirm && \
+    pacman -S --noconfirm \
+    git curl base-devel openssl zlib xz tk sqlite bzip2 libffi && \
+    pacman -Scc --noconfirm
 
-# Install Docker CLI from Docker's repo
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    docker-ce-cli \
-    && rm -rf /var/lib/apt/lists/*
+# Enable multilib repository
+RUN echo -e "\n[multilib]\nInclude = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf
 
-# Install Docker Buildx
-RUN mkdir -p /usr/lib/docker/cli-plugins/ \
-    && curl -SL https://github.com/docker/buildx/releases/download/v0.10.3/buildx-v0.10.3.linux-amd64 -o /usr/lib/docker/cli-plugins/docker-buildx \
-    && chmod +x /usr/lib/docker/cli-plugins/docker-buildx
+# Update package databases and upgrade the system
+RUN pacman -Syu --noconfirm
+
+RUN pacman --quiet -S --noconfirm python wine winetricks wine-mono wine-gecko wget \
+    xorg-server-xvfb coreutils which lib32-gnutls libwbclient samba
+
+RUN useradd -m -G wheel -s /bin/bash builderbob &&\
+    echo '%wheel ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/wheel
+
+# Set up directories and permissions
+RUN mkdir -p /builddir /python /app/payload /app/output && \
+    chown -R builderbob:builderbob /builddir /python /app
+
+USER builderbob
+
+WORKDIR /builddir
+
+ENV DISPLAY=:0.0
+ENV WINEPATH=/python
+ENV WINEARCH=win64
+ENV WINEPREFIX=/python/prefix
+ENV WINEDEBUG=trace-all,warn-all,err+all,fixme-all
+
+# Setup wine environment
+RUN wget --quiet -O /builddir/python-3.12.exe https://www.python.org/ftp/python/3.12.3/python-3.12.3-amd64.exe
+RUN wget -O /builddir/depends22_x86.zip https://www.dependencywalker.com/depends22_x86.zip
+RUN wget -O /builddir/gcc.zip https://github.com/brechtsanders/winlibs_mingw/releases/download/13.2.0-16.0.6-11.0.1-msvcrt-r1/winlibs-x86_64-posix-seh-gcc-13.2.0-llvm-16.0.6-mingw-w64msvcrt-11.0.1-r1.zip
+
+RUN --mount=type=bind,source=./install_python.sh,target=/builddir/install_python.sh \
+    ./install_python.sh
 
 WORKDIR /app
 
-RUN mkdir payload
-
-RUN mkdir output
-
 COPY . /app
+
+USER root
+
+RUN chown -R builderbob:builderbob /app /app/payload /app/output
+
+USER builderbob
 
 RUN pip install -r requirements.txt
 
-# Expose all ports asdasd
 EXPOSE 5000-5004
+
+#CMD ["/bin/bash"] i am tehsing this stuff
 
 CMD ["python3", "server.py"]

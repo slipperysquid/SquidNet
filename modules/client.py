@@ -12,7 +12,7 @@ import importlib.abc
 
 import hashlib
 import hmac
-
+import subprocess
 def make_threaded(func):
     
     def wrapper(*args, **kwargs):
@@ -135,29 +135,31 @@ def detach_process():
     # Windows-specific detachment
     if os.name == 'nt':
         try:
-            # Use subprocess to create a detached process
-            # https://learn.microsoft.com/en-us/windows/win32/procthread/process-creation-flags
             DETACHED_PROCESS = 0x00000008
             CREATE_NEW_PROCESS_GROUP = 0x00000200
             flags = DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP
 
-            # Ensure the child process uses the same Python interpreter as the parent.
-            python_executable = sys.executable
-            script_path = os.path.abspath(__file__)  # Get the full path of the current script
+            # Use the current script's path as the command to execute
+            script_path = os.path.abspath(__file__)
+            command = [sys.executable, script_path]
 
+            # Create a new process in a detached state
             process = subprocess.Popen(
-                [python_executable, script_path],
+                command,
                 creationflags=flags,
-                stdout=subprocess.PIPE,  # Redirect stdout to a pipe
-                stderr=subprocess.PIPE,  # Redirect stderr to a pipe
-                stdin=subprocess.PIPE,   # Redirect stdin to a pipe
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                stdin=subprocess.PIPE,
+                cwd=os.getcwd(),
+                close_fds=True
             )
 
-            # The parent process exits immediately, leaving the detached process running.
+            print(f"Detached process with PID: {process.pid}")
             return
 
         except Exception as e:
             print(f"Error detaching process: {e}")
+            return
     else:
         try:
             # Fork the current process

