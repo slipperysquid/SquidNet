@@ -57,21 +57,6 @@ Special thanks to the discontinued BYOB project for inspiring me!: https://githu
     docker run -v ./payload:/app/payload -v ./output:/app/output -it --network host squidnet
     ```
 
-### Running without Docker
-
-1.  **Install dependencies:**
-
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-3.  **Start the server:**
-
-    ```bash
-    python3 server.py
-    ```
-
-
 ## Usage
 
 1.  **Server Commands:**
