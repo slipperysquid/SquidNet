@@ -93,4 +93,9 @@ def replace_host_line(file_path, new_ip):
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(new_content)
         
+def windows_payload():
+    """compiles the payload into a windows exe"""
+    show("COMPILING PAYLOAD FOR WINDOWS...", colour='BLUE', style='BRIGHT', end='\n->')
+    os.system('pyinstaller --noconfirm --onefile --console --clean -n payload.exe --distpath payload/ payload/payload.py')
+    show("PAYLOAD FILE WRITTEN TO payload DIRECTORY", colour='GREEN', style='BRIGHT', end='\n->')
 

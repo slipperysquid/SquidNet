@@ -2,3 +2,4 @@ psutil
 colorama
 pyfiglet
 pynput
+pyinstaller

